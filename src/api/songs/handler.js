@@ -1,3 +1,5 @@
+const { nanoid } = require('nanoid');
+
 class SongHandler {
   constructor(service, validator) {
     this._service = service;
@@ -10,23 +12,23 @@ class SongHandler {
     this.deleteSongByIdHandler = this.deleteSongByIdHandler.bind(this);
   }
 
-  postSongHandler(request, h) {
+  async postSongHandler(request, h) {
     try {
       this._validator.validateSongPayload(request.payload);
       const {
         title,
         year,
-        genre,
         performer,
-        duration,
-        albumId,
+        genre,
+        duration = 120,
+        albumId = nanoid(16),
       } = request.payload;
 
-      const songId = this._service.addSong({
+      const songId = await this._service.addSong({
         title,
         year,
-        genre,
         performer,
+        genre,
         duration,
         albumId,
       });
@@ -50,21 +52,25 @@ class SongHandler {
     }
   }
 
-  getSongsHandler() {
-    const songs = this._service.getSongs();
+  async getSongsHandler() {
+    const songs = await this._service.getSongs();
     return {
       status: 'success',
       data: {
-        songs,
+        songs: songs.map((song) => ({
+          id: song.id,
+          title: song.title,
+          performer: song.performer,
+        })),
       },
     };
   }
 
-  getSongByIdHandler(request, h) {
+  async getSongByIdHandler(request, h) {
     try {
       const { id } = request.params;
 
-      const song = this._service.getSongById(id);
+      const song = await this._service.getSongById(id);
       return {
         status: 'success',
         data: {
@@ -81,7 +87,7 @@ class SongHandler {
     }
   }
 
-  putSongByIdHandler(request, h) {
+  async putSongByIdHandler(request, h) {
     try {
       this._validator.validateSongPayload(request.payload);
       const { id } = request.params;
@@ -89,17 +95,17 @@ class SongHandler {
       const {
         title,
         year,
-        genre,
         performer,
-        duration,
-        albumId,
+        genre,
+        duration = 120,
+        albumId = nanoid(16),
       } = request.payload;
 
-      this._service.editSongById(id, {
+      await this._service.editSongById(id, {
         title,
         year,
-        genre,
         performer,
+        genre,
         duration,
         albumId,
       });
@@ -118,11 +124,11 @@ class SongHandler {
     }
   }
 
-  deleteSongByIdHandler(request, h) {
+  async deleteSongByIdHandler(request, h) {
     try {
       const { id } = request.params;
 
-      this._service.deleteSongById(id);
+      await this._service.deleteSongById(id);
       return {
         status: 'success',
         message: 'Lagu berhasil dihapus',

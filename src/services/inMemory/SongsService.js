@@ -10,17 +10,17 @@ class SongsService {
   addSong({
     title,
     year,
-    genre,
     performer,
-    duration,
-    albumId,
+    genre,
+    duration = 120,
+    albumId = nanoid(16),
   }) {
     const id = nanoid(16);
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
 
     const newSong = {
-      title, year, genre, performer, duration, albumId, createdAt, updatedAt,
+      title, year, performer, genre, duration, albumId, createdAt, updatedAt,
     };
 
     this._songs.push(newSong);
@@ -50,10 +50,10 @@ class SongsService {
   editSongById(id, {
     title,
     year,
-    genre,
     performer,
-    duration,
-    albumId,
+    genre,
+    duration = 120,
+    albumId = nanoid(16),
   }) {
     const index = this._songs.findIndex((song) => song.id === id);
 
@@ -67,8 +67,8 @@ class SongsService {
       ...this._songs[index],
       title,
       year,
-      genre,
       performer,
+      genre,
       duration,
       albumId,
       updatedAt,
