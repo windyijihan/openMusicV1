@@ -63,9 +63,61 @@ class SongHandler {
     }
   }
 
-  async getSongsHandler() {
+  async getSongsHandler(request, h) {
+    const { title, performer } = request.query;
     const songs = await this._service.getSongs();
-    return {
+
+    if ((title !== undefined) && (performer !== undefined)) {
+      const regexTitle = new RegExp(title, 'i');
+      const regexPerformer = new RegExp(performer, 'i');
+      const response = h.response({
+        status: 'success',
+        data: {
+          songs: songs.filter((song) => regexTitle.test(song.title))
+            .filter((song) => regexPerformer.test(song.performer))
+            .map((song) => ({
+              id: song.id,
+              title: song.title,
+              performer: song.performer,
+            })),
+        },
+      });
+      response.code(200);
+      return response;
+    }
+    if (title !== undefined) {
+      const regex = new RegExp(title, 'i');
+      const response = h.response({
+        status: 'success',
+        data: {
+          songs: songs.filter((song) => regex.test(song.title)).map((song) => ({
+            id: song.id,
+            title: song.title,
+            performer: song.performer,
+          })),
+        },
+      });
+      response.code(200);
+      return response;
+    }
+
+    if (performer !== undefined) {
+      const regex = new RegExp(performer, 'i');
+      const response = h.response({
+        status: 'success',
+        data: {
+          songs: songs.filter((song) => regex.test(song.performer)).map((song) => ({
+            id: song.id,
+            title: song.title,
+            performer: song.performer,
+          })),
+        },
+      });
+      response.code(200);
+      return response;
+    }
+
+    const response = h.response({
       status: 'success',
       data: {
         songs: songs.map((song) => ({
@@ -74,7 +126,9 @@ class SongHandler {
           performer: song.performer,
         })),
       },
-    };
+    });
+    response.code(200);
+    return response;
   }
 
   async getSongByIdHandler(request, h) {
