@@ -29,7 +29,6 @@ exports.up = (pgm) => {
     },
     album_id: {
       type: 'VARCHAR(50)',
-      foreignKey: true,
     },
     created_at: {
       type: 'TEXT',
